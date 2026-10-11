@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= searchQuery ? `${searchQuery} · Movie Discovery` : 'Movie Discovery' %></title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <!-- Ambient background glows -->
+  <div class="bg-glow bg-glow--1"></div>
+  <div class="bg-glow bg-glow--2"></div>
+  <div class="bg-noise"></div>
+
+  <div class="app-wrapper">
+
+    <!-- ═══════ HEADER ═══════ -->
+    <header class="header">
+      <a href="/" class="logo-area">
+        <div class="logo-icon-wrap">
+          <i class="fas fa-film logo-icon"></i>
+        </div>
+        <div class="logo-text">Movie<span>Discovery</span></div>
+      </a>
+
+      <div class="header-right">
+        <div class="api-badge">
+          <span class="pulse-dot"></span>
+          OMDb API · live
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══════ SEARCH ═══════ -->
+    <section class="search-section">
+      <form class="search-form" action="/search" method="GET" autocomplete="off">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            id="searchInput"
+            name="q"
+            placeholder="Search any movie… try 'Inception', 'Dune', 'The Godfather'"
+            value="<%= searchQuery %>"
+            autocomplete="off"
+            autofocus
+          />
+        </div>
+        <button type="submit" class="search-btn">
+          <i class="fas fa-compass"></i>
+          <span>Discover</span>
+        </button>
+      </form>
+
+      <div class="search-hint">
+        <i class="fas fa-lightbulb"></i>
+        <span>Powered by the Open Movie Database · get a free key at omdbapi.com</span>
+      </div>
+    </section>
+
+    <!-- ═══════ MAIN ═══════ -->
+    <main class="main-content">
+
+      <!-- ===== ERROR / NOT FOUND ===== -->
+      <% if (error) { %>
+        <div class="message-card message-card--error">
+          <div class="message-icon-wrap">
+            <i class="fas fa-triangle-exclamation"></i>
+          </div>
+          <h3><%= notFound ? 'Nothing found' : 'Something went wrong' %></h3>
+          <p><%= error %></p>
+          <a href="/" class="message-btn"><i class="fas fa-rotate-left"></i> Start over</a>
+        </div>
+      <% } %>
+
+      <!-- ===== HERO MOVIE DETAIL ===== -->
+      <% if (movie) { %>
+        <article class="movie-detail">
+          <div class="poster-wrapper">
+            <% if (movie.Poster && movie.Poster !== 'N/A') { %>
+              <img src="<%= movie.Poster %>" alt="<%= movie.Title %> poster" loading="lazy" />
+            <% } else { %>
+              <div class="poster-fallback">
+                <i class="fas fa-film"></i>
+                <span>No poster</span>
+              </div>
+            <% } %>
+          </div>
+
+          <div class="movie-info">
+            <div class="movie-title-row">
+              <h1 class="movie-title"><%= movie.Title %></h1>
+              <% if (movie.Year) { %>
+                <span class="year-pill"><%= movie.Year %></span>
+              <% } %>
+            </div>
+
+            <div class="meta-row">
+              <% if (movie.Rated && movie.Rated !== 'N/A') { %>
+                <span class="meta-item"><i class="fas fa-shield-halved"></i><%= movie.Rated %></span>
+              <% } %>
+              <% if (movie.Runtime && movie.Runtime !== 'N/A') { %>
+                <span class="meta-item"><i class="fas fa-clock"></i><%= movie.Runtime %></span>
+              <% } %>
+              <% if (movie.Genre && movie.Genre !== 'N/A') { %>
+                <span class="meta-item"><i class="fas fa-masks-theater"></i><%= movie.Genre %></span>
+              <% } %>
+              <% if (movie.imdbRating && movie.imdbRating !== 'N/A') { %>
+                <span class="rating-badge">
+                  <i class="fas fa-star"></i>
+                  <%= movie.imdbRating %> / 10
+                  <% if (movie.imdbVotes && movie.imdbVotes !== 'N/A') { %>
+                    <span class="votes">· <%= movie.imdbVotes %> votes</span>
+                  <% } %>
+                </span>
+              <% } %>
+            </div>
+
+            <% if (movie.Plot && movie.Plot !== 'N/A') { %>
+              <p class="plot"><%= movie.Plot %></p>
+            <% } %>
+
+            <div class="extra-details">
+              <% if (movie.Director && movie.Director !== 'N/A') { %>
+                <span><strong>Director</strong> <%= movie.Director %></span>
+              <% } %>
+              <% if (movie.Actors && movie.Actors !== 'N/A') { %>
+                <span><strong>Cast</strong> <%= movie.Actors %></span>
+              <% } %>
+              <% if (movie.Released && movie.Released !== 'N/A') { %>
+                <span><strong>Released</strong> <%= movie.Released %></span>
+              <% } %>
+              <% if (movie.Awards && movie.Awards !== 'N/A') { %>
+                <span><strong>Awards</strong> <%= movie.Awards %></span>
+              <% } %>
+            </div>
+
+            <% if (movie.imdbID) { %>
+              <div class="action-row">
+                <a class="action-btn action-btn--primary"
+                   href="https://www.imdb.com/title/<%= movie.imdbID %>/"
+                   target="_blank" rel="noopener">
+                  <i class="fab fa-imdb"></i> View on IMDb
+                </a>
+                <a class="action-btn"
+                   href="https://www.youtube.com/results?search_query=<%= encodeURIComponent(movie.Title + ' trailer') %>"
+                   target="_blank" rel="noopener">
+                  <i class="fas fa-play"></i> Watch trailer
+                </a>
+              </div>
+            <% } %>
+          </div>
+        </article>
+      <% } %>
+
+      <!-- ===== SEARCH RESULTS GRID ===== -->
+      <% if (results && results.length > 0) { %>
+        <section class="results-section">
+          <div class="results-header">
+            <h2><i class="fas fa-list-ul"></i> Search Results</h2>
+            <span class="results-count">
+              <%= total %> title<%= total === 1 ? '' : 's' %> found
+            </span>
+          </div>
+
+          <div class="movie-grid">
+            <% results.forEach(m => { %>
+              <a class="movie-card" href="/movie/<%= m.imdbID %>">
+                <div class="card-poster">
+                  <% if (m.Poster && m.Poster !== 'N/A') { %>
+                    <img src="<%= m.Poster %>" alt="<%= m.Title %> poster" loading="lazy" />
+                  <% } else { %>
+                    <i class="fas fa-film no-poster-icon"></i>
+                  <% } %>
+                </div>
+                <div class="card-info">
+                  <div class="card-title"><%= m.Title %></div>
+                  <div class="card-year"><i class="fas fa-calendar"></i><%= m.Year %></div>
+                </div>
+              </a>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <!-- ===== EMPTY STATE ===== -->
+      <% if (!movie && !error && (!results || results.length === 0) && !searchQuery) { %>
+        <div class="message-card message-card--empty">
+          <div class="message-icon-wrap">
+            <i class="fas fa-clapperboard"></i>
+          </div>
+          <h3>Ready to discover your next favorite film?</h3>
+          <p>Type a title above — get the poster, plot, ratings, cast, and more, instantly.</p>
+          <div class="chip-row">
+            <a class="chip" href="/search?q=Inception">Inception</a>
+            <a class="chip" href="/search?q=Dune">Dune</a>
+            <a class="chip" href="/search?q=Interstellar">Interstellar</a>
+            <a class="chip" href="/search?q=The Godfather">The Godfather</a>
+            <a class="chip" href="/search?q=Parasite">Parasite</a>
+            <a class="chip" href="/search?q=Oppenheimer">Oppenheimer</a>
+          </div>
+        </div>
+      <% } %>
+
+    </main>
+
+    <!-- ═══════ FOOTER ═══════ -->
+    <footer class="footer">
+      <div class="footer-left">
+        <i class="fas fa-film"></i>
+        Movie Discovery · Powered by
+        <a href="https://www.omdbapi.com/" target="_blank" rel="noopener">OMDb API</a>
+      </div>
+      <div class="footer-right">
+        <i class="fas fa-heart"></i> Built with Express, EJS &amp; vanilla CSS
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
